@@ -1,0 +1,2263 @@
+<?php
+
+namespace PrimeSlider\Traits;
+
+use Elementor\Controls_Manager;
+use Elementor\Group_Control_Background;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Image_Size;
+use Elementor\Group_Control_Box_Shadow;
+use Elementor\Icons_Manager;
+use Elementor\Repeater;
+use PrimeSlider\Utils;
+
+defined( 'ABSPATH' ) || die();
+
+trait Global_Widget_Controls {
+
+	/**
+	 * Pagination controls
+	 */
+	protected function register_pagination_controls() {
+
+		$this->start_controls_tabs( 'tabs_pagination_style' );
+
+		$this->start_controls_tab(
+			'tab_pagination_normal',
+			[ 
+				'label' => esc_html__( 'Normal', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'pagination_color',
+			[ 
+				'label'     => esc_html__( 'Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a, {{WRAPPER}} ul.bdt-pagination li span' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[ 
+				'name'     => 'pagination_background',
+				'types'    => [ 'classic', 'gradient' ],
+				'selector' => '{{WRAPPER}} ul.bdt-pagination li a',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[ 
+				'name'     => 'pagination_border',
+				'label'    => esc_html__( 'Border', 'bdthemes-prime-slider-lite' ),
+				'selector' => '{{WRAPPER}} ul.bdt-pagination li a',
+			]
+		);
+
+		$this->add_responsive_control(
+			'pagination_offset',
+			[ 
+				'label'     => esc_html__( 'Offset', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-pagination' => 'margin-top: {{SIZE}}px;',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pagination_space',
+			[ 
+				'label'     => esc_html__( 'Spacing', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-pagination'     => 'margin-left: {{SIZE}}px;',
+					'{{WRAPPER}} .bdt-pagination > *' => 'padding-left: {{SIZE}}px;',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pagination_padding',
+			[ 
+				'label'     => esc_html__( 'Padding', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::DIMENSIONS,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a' => 'padding: {{TOP}}px {{RIGHT}}px {{BOTTOM}}px {{LEFT}}px;',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pagination_radius',
+			[ 
+				'label'     => esc_html__( 'Radius', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::DIMENSIONS,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a' => 'border-radius: {{TOP}}px {{RIGHT}}px {{BOTTOM}}px {{LEFT}}px;',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'pagination_arrow_size',
+			[ 
+				'label'     => esc_html__( 'Arrow Size', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a svg' => 'height: {{SIZE}}px; width: auto;',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[ 
+				'name'     => 'pagination_typography',
+				'label'    => esc_html__( 'Typography', 'bdthemes-prime-slider-lite' ),
+				'selector' => '{{WRAPPER}} ul.bdt-pagination li a, {{WRAPPER}} ul.bdt-pagination li span',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_pagination_hover',
+			[ 
+				'label' => esc_html__( 'Hover', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'pagination_hover_color',
+			[ 
+				'label'     => esc_html__( 'Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a:hover, {{WRAPPER}} ul.bdt-pagination li a:hover span' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pagination_hover_border_color',
+			[ 
+				'label'     => esc_html__( 'Border Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li a:hover' => 'border-color: {{VALUE}};',
+				],
+				'condition' => [ 
+					'pagination_border_border!' => ''
+				]
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[ 
+				'name'     => 'pagination_hover_background',
+				'types'    => [ 'classic', 'gradient' ],
+				'selector' => '{{WRAPPER}} ul.bdt-pagination li a:hover',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_pagination_active',
+			[ 
+				'label' => esc_html__( 'Active', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'pagination_active_color',
+			[ 
+				'label'     => esc_html__( 'Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li.bdt-active a, {{WRAPPER}} ul.bdt-pagination li.bdt-active span' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pagination_active_border_color',
+			[ 
+				'label'     => esc_html__( 'Border Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} ul.bdt-pagination li.bdt-active a' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[ 
+				'name'     => 'pagination_active_background',
+				'selector' => '{{WRAPPER}} ul.bdt-pagination li.bdt-active a',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+	}
+
+	/**
+	 * Query controls
+	 */
+	protected function register_query_controls() {
+
+		$this->add_control(
+			'post_source',
+			[ 
+				'label'       => _x( 'Source', 'Posts Query Control', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SELECT,
+				'options'     => [ 
+					''        => esc_html__( 'Show All', 'bdthemes-prime-slider-lite' ),
+					'by_name' => esc_html__( 'Manual Selection', 'bdthemes-prime-slider-lite' ),
+				],
+				'label_block' => true,
+			]
+		);
+
+		$this->add_control(
+			'post_categories',
+			[ 
+				'label'       => esc_html__( 'Categories', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SELECT2,
+				'options'     => prime_slider_get_category( 'category' ),
+				'default'     => [],
+				'label_block' => true,
+				'multiple'    => true,
+				'condition'   => [ 
+					'post_source' => 'by_name',
+				],
+			]
+		);
+
+		$this->add_control(
+			'limit',
+			[ 
+				'label'   => esc_html__( 'Limit', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::NUMBER,
+				'default' => 3,
+			]
+		);
+
+		$this->add_control(
+			'orderby',
+			[ 
+				'label'   => esc_html__( 'Order by', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'date',
+				'options' => [ 
+					'date'     => esc_html__( 'Date', 'bdthemes-prime-slider-lite' ),
+					'title'    => esc_html__( 'Title', 'bdthemes-prime-slider-lite' ),
+					'category' => esc_html__( 'Category', 'bdthemes-prime-slider-lite' ),
+					'rand'     => esc_html__( 'Random', 'bdthemes-prime-slider-lite' ),
+				],
+			]
+		);
+
+		$this->add_control(
+			'order',
+			[ 
+				'label'   => esc_html__( 'Order', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'DESC',
+				'options' => [ 
+					'DESC' => esc_html__( 'Descending', 'bdthemes-prime-slider-lite' ),
+					'ASC'  => esc_html__( 'Ascending', 'bdthemes-prime-slider-lite' ),
+				],
+			]
+		);
+	}
+
+	/**
+	 * Background Settings
+	 */
+	protected function register_background_settings( $class_name ) {
+
+		$this->add_control(
+			'background_image_toggle',
+			[ 
+				'label'        => __( 'Background Image Settings', 'bdthemes-prime-slider-lite' ),
+				'type'         => Controls_Manager::POPOVER_TOGGLE,
+				'label_off'    => __( 'None', 'bdthemes-prime-slider-lite' ),
+				'label_on'     => __( 'Custom', 'bdthemes-prime-slider-lite' ),
+				'return_value' => 'yes',
+			]
+		);
+
+		$this->start_popover();
+
+		$this->add_responsive_control(
+			'background_image_position',
+			[ 
+				'label'       => esc_html__( 'Position', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => '',
+				'options'     => [ 
+					''              => esc_html__( 'Default', 'bdthemes-prime-slider-lite' ),
+					'center center' => esc_html__( 'Center Center', 'bdthemes-prime-slider-lite' ),
+					'center left'   => esc_html__( 'Center Left', 'bdthemes-prime-slider-lite' ),
+					'center right'  => esc_html__( 'Center Right', 'bdthemes-prime-slider-lite' ),
+					'top center'    => esc_html__( 'Top Center', 'bdthemes-prime-slider-lite' ),
+					'top left'      => esc_html__( 'Top Left', 'bdthemes-prime-slider-lite' ),
+					'top right'     => esc_html__( 'Top Right', 'bdthemes-prime-slider-lite' ),
+					'bottom center' => esc_html__( 'Bottom Center', 'bdthemes-prime-slider-lite' ),
+					'bottom left'   => esc_html__( 'Bottom Left', 'bdthemes-prime-slider-lite' ),
+					'bottom right'  => esc_html__( 'Bottom Right', 'bdthemes-prime-slider-lite' ),
+				],
+				'selectors'   => [ 
+					'{{WRAPPER}} ' . $class_name . '' => 'background-position: {{VALUE}};',
+				],
+				'condition'   => [ 
+					'background_image_toggle' => 'yes'
+				],
+				'render_type' => 'ui',
+			]
+		);
+
+		// $this->add_responsive_control(
+		// 	'background_image_attachment',
+		// 	[
+		// 		'label'   => esc_html__('Attachment', 'bdthemes-prime-slider-lite'),
+		// 		'type'    => Controls_Manager::SELECT,
+		// 		'default' => '',
+		// 		'options' => [
+		// 			''       => esc_html__('Default', 'bdthemes-prime-slider-lite'),
+		// 			'scroll' => esc_html__('Scroll', 'bdthemes-prime-slider-lite'),
+		// 			'fixed'  => esc_html__('Fixed', 'bdthemes-prime-slider-lite'),
+		// 		],
+		// 		'selectors' => [
+		// 			'{{WRAPPER}} ' . $class_name . '' => 'background-attachment: {{VALUE}};',
+		// 		],
+		// 		'condition' => [
+		// 			'background_image_toggle' => 'yes'
+		// 		],
+		// 		'render_type' => 'ui',
+		// 	]
+		// );
+
+		$this->add_responsive_control(
+			'background_image_repeat',
+			[ 
+				'label'       => esc_html__( 'Repeat', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => '',
+				'options'     => [ 
+					''          => esc_html__( 'Default', 'bdthemes-prime-slider-lite' ),
+					'no-repeat' => esc_html__( 'No-repeat', 'bdthemes-prime-slider-lite' ),
+					'repeat'    => esc_html__( 'Repeat', 'bdthemes-prime-slider-lite' ),
+					'repeat-x'  => esc_html__( 'Repeat-x', 'bdthemes-prime-slider-lite' ),
+					'repeat-y'  => esc_html__( 'Repeat-y', 'bdthemes-prime-slider-lite' ),
+				],
+				'selectors'   => [ 
+					'{{WRAPPER}} ' . $class_name . '' => 'background-repeat: {{VALUE}};',
+				],
+				'condition'   => [ 
+					'background_image_toggle' => 'yes'
+				],
+				'render_type' => 'ui',
+			]
+		);
+
+		$this->add_responsive_control(
+			'background_image_size',
+			[ 
+				'label'       => esc_html__( 'Size', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => '',
+				'options'     => [ 
+					''        => esc_html__( 'Default', 'bdthemes-prime-slider-lite' ),
+					'auto'    => esc_html__( 'Auto', 'bdthemes-prime-slider-lite' ),
+					'cover'   => esc_html__( 'Cover', 'bdthemes-prime-slider-lite' ),
+					'contain' => esc_html__( 'Contain', 'bdthemes-prime-slider-lite' ),
+					'initial' => esc_html__( 'Custom', 'bdthemes-prime-slider-lite' ),
+				],
+				'selectors'   => [ 
+					'{{WRAPPER}} ' . $class_name . '' => 'background-size: {{VALUE}};',
+				],
+				'condition'   => [ 
+					'background_image_toggle' => 'yes'
+				],
+				'render_type' => 'ui',
+			]
+		);
+
+		$this->add_responsive_control(
+			'background_image_width',
+			[ 
+				'label'       => esc_html__( 'Width', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SLIDER,
+				'size_units'  => [ 'px', 'em', '%', 'vw' ],
+				'range'       => [ 
+					'px' => [ 
+						'min' => 0,
+						'max' => 1000,
+					],
+					'%'  => [ 
+						'min' => 0,
+						'max' => 100,
+					],
+					'vw' => [ 
+						'min' => 0,
+						'max' => 100,
+					],
+				],
+				'default'     => [ 
+					'size' => 100,
+					'unit' => '%',
+				],
+				'required'    => true,
+				'selectors'   => [ 
+					'{{WRAPPER}} ' . $class_name . '' => 'background-size: {{SIZE}}{{UNIT}} auto',
+
+				],
+				'condition'   => [ 
+					'background_image_size' => [ 'initial' ],
+				],
+				'render_type' => 'ui',
+			]
+		);
+
+		$this->end_popover();
+	}
+
+	/**
+	 * Social Link controls
+	 */
+	protected function register_social_links_controls() {
+		$this->start_controls_section(
+			'section_content_social_link',
+			[ 
+				'label'     => __( 'Social Link', 'bdthemes-prime-slider-lite' ),
+				'condition' => [ 
+					'show_social_icon' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'follow_us_text',
+			[ 
+				'label'   	=> esc_html__( 'Follow Us Text', 'bdthemes-prime-slider-lite' ),
+				'type'    	=> Controls_Manager::TEXT,
+				'dynamic' 	=> [ 'active' => true ],
+				'default' 	=> esc_html__( 'Follow Us', 'bdthemes-prime-slider-lite' ),
+				'condition' => [ 
+					'_skin' 	=> 'folio',
+				],
+			]
+		);
+
+		$repeater = new Repeater();
+
+		$repeater->add_control(
+			'social_link_title',
+			[ 
+				'label'   => __( 'Title', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::TEXT,
+				'dynamic' => [ 'active' => true ],
+			]
+		);
+
+		$repeater->add_control(
+			'social_icon_link',
+			[ 
+				'label'   => __( 'Link', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::URL,
+				'dynamic' => [ 'active' => true ],
+			]
+		);
+
+		$repeater->add_control(
+			'social_icon',
+			[ 
+				'label' => __( 'Choose Icon', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::ICONS,
+			]
+		);
+
+		$this->add_control(
+			'social_link_list',
+			[ 
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $repeater->get_controls(),
+				'default'     => [ 
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.facebook.com/bdthemes/' ],
+						'social_icon'       => [ 
+							'value'   => 'fab fa-facebook-f',
+							'library' => 'fa-brands',
+						],
+						'social_link_title' => __( 'Facebook', 'bdthemes-prime-slider-lite' ),
+					],
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.twitter.com/bdthemes/' ],
+						'social_icon'       => [ 
+							'value'   => 'fab fa-twitter',
+							'library' => 'fa-brands',
+						],
+						'social_link_title' => __( 'Twitter', 'bdthemes-prime-slider-lite' ),
+					],
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.instagram.com/bdthemes/' ],
+						'social_icon'       => [ 
+							'value'   => 'fab fa-instagram',
+							'library' => 'fa-brands',
+						],
+						'social_link_title' => __( 'Instagram', 'bdthemes-prime-slider-lite' ),
+					],
+				],
+				'title_field' => '{{ social_link_title }}',
+			]
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Social tooltip style controls.
+	 *
+	 * @param string $social_icon_selector Social icon wrapper selector relative to {{WRAPPER}}.
+	 * @param array  $conditions         Additional control conditions.
+	 */
+	protected function register_social_tooltip_style_controls( $social_icon_selector = '.bdt-prime-slider-social-icon', $conditions = [] ) {
+		$control_conditions = array_merge(
+			[
+				'social_icon_tooltip' => 'yes',
+				'show_social_icon'    => 'yes',
+			],
+			$conditions
+		);
+
+		$this->add_control(
+			'social_tooltip_text_color',
+			[
+				'label'     => esc_html__( 'Text Color', 'bdthemes-prime-slider-lite' ) . BDTPS_CORE_NC,
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'body:has({{WRAPPER}} ' . $social_icon_selector . ' a:hover) .bdt-tooltip, body:has({{WRAPPER}} ' . $social_icon_selector . ' a:hover) .bdt-tooltip .bdt-tooltip-inner' => 'color: {{VALUE}};',
+				],
+				'condition' => $control_conditions,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'           => 'social_tooltip_background',
+				'types'          => [ 'classic', 'gradient' ],
+				'fields_options' => [
+					'background' => [
+						'label' => esc_html__( 'Background Type', 'bdthemes-prime-slider-lite' ) . BDTPS_CORE_NC,
+					],
+				],
+				'condition'      => $control_conditions,
+				'selector'       => 'body:has({{WRAPPER}} ' . $social_icon_selector . ' a:hover) .bdt-tooltip',
+			]
+		);
+	}
+
+	/**
+	 * Social Link style controls
+	 */
+	protected function register_social_links_controls_style() {
+		$this->start_controls_section(
+			'section_style_social_icon',
+			[ 
+				'label'     => esc_html__( 'Social Link', 'bdthemes-prime-slider-lite' ),
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [ 
+					'show_social_icon' => 'yes',
+				],
+			]
+		);
+
+		$this->start_controls_tabs( 'tabs_social_icon_style' );
+
+		$this->start_controls_tab(
+			'tab_social_icon_normal',
+			[ 
+				'label' => esc_html__( 'Normal', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'social_icon_color',
+			[ 
+				'label'     => esc_html__( 'Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon i'     => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon svg *' => 'fill: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[ 
+				'name'     => 'social_icon_background',
+				'selector' => '{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a:before',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[ 
+				'name'        => 'social_icon_border',
+				'label'       => esc_html__( 'Border', 'bdthemes-prime-slider-lite' ),
+				'placeholder' => '1px',
+				'default'     => '1px',
+				'selector'    => '{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a',
+			]
+		);
+
+		$this->add_responsive_control(
+			'social_icon_radius',
+			[ 
+				'label'      => esc_html__( 'Border Radius', 'bdthemes-prime-slider-lite' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'social_icon_padding',
+			[ 
+				'label'      => esc_html__( 'Padding', 'bdthemes-prime-slider-lite' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[ 
+				'name'     => 'social_icon_shadow',
+				'selector' => '{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a',
+			]
+		);
+
+		$this->add_responsive_control(
+			'social_icon_size',
+			[ 
+				'label'     => __( 'Icon Size', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'range'     => [ 
+					'px' => [ 
+						'min' => 10,
+						'max' => 100,
+					],
+				],
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a' => 'font-size: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'social_icon_spacing',
+			[ 
+				'label'     => esc_html__( 'Space Between', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'range'     => [ 
+					'px' => [ 
+						'max' => 100,
+					],
+				],
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon' => 'grid-gap: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'social_icon_horizontal_offset',
+			[ 
+				'label'     => esc_html__( 'Horizontal Offset', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon' => 'left: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'social_icon_tooltip',
+			[ 
+				'label' => esc_html__( 'Show Tooltip', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SWITCHER,
+			]
+		);
+
+		$this->register_social_tooltip_style_controls( '.bdt-social-icon' );
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_social_icon_hover',
+			[ 
+				'label' => esc_html__( 'Hover', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'social_icon_hover_color',
+			[ 
+				'label'     => esc_html__( 'Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a:hover i'     => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a:hover svg *' => 'fill: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[ 
+				'name'     => 'social_icon_hover_background',
+				'selector' => '{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a:hover',
+			]
+		);
+
+		$this->add_control(
+			'icon_hover_border_color',
+			[ 
+				'label'     => esc_html__( 'Border Color', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::COLOR,
+				'condition' => [ 
+					'social_icon_border_border!' => '',
+				],
+				'selectors' => [ 
+					'{{WRAPPER}} .bdt-prime-slider .bdt-social-icon a:hover' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Show Price controls
+	 */
+	protected function register_show_price_controls() {
+		$this->add_control(
+			'show_price',
+			[ 
+				'label'   => __( 'Show Price', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Show Cart controls
+	 */
+	protected function register_show_cart_controls() {
+		$this->add_control(
+			'show_cart',
+			[ 
+				'label'   => __( 'Add to Cart', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Slider Settings Controls
+	 */
+	protected function register_slider_settings_controls() {
+		$this->add_control(
+			'autoplay',
+			[ 
+				'label'   => esc_html__( 'Autoplay', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+
+		$this->add_control(
+			'autoplay_interval',
+			[ 
+				'label'     => esc_html__( 'Autoplay Interval (ms)', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::NUMBER,
+				'default'   => 7000,
+				'condition' => [ 
+					'autoplay' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pause_on_hover',
+			[ 
+				'label' 	=> esc_html__( 'Pause on Hover', 'bdthemes-prime-slider-lite' ),
+				'type'  	=> Controls_Manager::SWITCHER,
+				'condition' => [ 
+					'autoplay' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'velocity',
+			[ 
+				'label' => __( 'Animation Speed', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SLIDER,
+				'range' => [ 
+					'px' => [ 
+						'min'  => 0.1,
+						'max'  => 1,
+						'step' => 0.1,
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'finite',
+			[ 
+				'label'   => esc_html__( 'Loop', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Ken Burns Controls
+	 */
+	protected function register_ken_burns_controls() {
+		$this->add_control(
+			'kenburns_animation',
+			[ 
+				'label'     => esc_html__( 'Kenburns Animation', 'bdthemes-prime-slider-lite' ),
+				'separator' => 'before',
+				'type'      => Controls_Manager::SWITCHER,
+			]
+		);
+
+		$this->add_control(
+			'kenburns_reverse',
+			[ 
+				'label'     => esc_html__( 'Kenburn Reverse', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'condition' => [ 
+					'kenburns_animation' => 'yes',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Swiper Effects controls
+	 */
+	protected function register_swiper_effects_controls() {
+		$this->add_control(
+			'swiper_effect',
+			[ 
+				'label'   => esc_html__( 'Swiper Effect', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'slide',
+				'options' => [ 
+					'slide'     => esc_html__( 'Slide', 'bdthemes-prime-slider-lite' ),
+					'fade'      => esc_html__( 'Fade', 'bdthemes-prime-slider-lite' ),
+					'cube'      => esc_html__( 'Cube', 'bdthemes-prime-slider-lite' ),
+					'coverflow' => esc_html__( 'Coverflow', 'bdthemes-prime-slider-lite' ),
+					'flip'      => esc_html__( 'Flip', 'bdthemes-prime-slider-lite' ),
+					'creative'  => esc_html__( 'Creative', 'bdthemes-prime-slider-lite' ),
+				],
+			]
+		);
+		//creative effect control
+		$this->add_control(
+			'creative_effect',
+			[ 
+				'label'     => esc_html__( 'Creative Effect', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SELECT,
+				'default'   => 'creative-1',
+				'options'   => [ 
+					'creative-1' => esc_html__( 'Creative 1', 'bdthemes-prime-slider-lite' ),
+					'creative-2' => esc_html__( 'Creative 2', 'bdthemes-prime-slider-lite' ),
+					'creative-3' => esc_html__( 'Creative 3', 'bdthemes-prime-slider-lite' ),
+					'creative-4' => esc_html__( 'Creative 4', 'bdthemes-prime-slider-lite' ),
+					'creative-5' => esc_html__( 'Creative 5', 'bdthemes-prime-slider-lite' ),
+				],
+				'condition' => [ 
+					'swiper_effect' => 'creative',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Show Category Controls
+	 */
+	protected function register_show_category_controls() {
+		$this->add_control(
+			'show_category',
+			[ 
+				'label'     => esc_html__( 'Show Category', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before',
+			]
+		);
+	}
+
+	/**
+	 * Slider Height controls
+	 */
+	protected function register_slider_height_controls() {
+
+		$this->add_control(
+			'slider_size_ratio',
+			[ 
+				'label'       => esc_html__( 'Size Ratio', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::IMAGE_DIMENSIONS,
+				'show_label'  => true,
+				'description' => esc_html__('Slider ratio to width and height, such as 16:9', 'bdthemes-prime-slider-lite'),
+				'separator'   => 'before',
+				'condition'   => [ 
+					'enable_height!' => 'yes'
+				]
+			]
+		);
+
+		$this->add_control(
+			'slider_min_height',
+			[ 
+				'label'     => esc_html__( 'Minimum Height', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SLIDER,
+				'range'     => [ 
+					'px' => [ 
+						'min' => 50,
+						'max' => 1024,
+					],
+				],
+				'condition' => [ 
+					'enable_height!' => 'yes'
+				]
+			]
+		);
+
+		$this->add_control(
+			'enable_height',
+			[ 
+				'label'   => esc_html__( 'Enable Responsive Height', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+			]
+		);
+
+		$this->add_responsive_control(
+			'viewport_height',
+			[ 
+				'label'       => esc_html__( 'Height', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SLIDER,
+				'size_units' => [ 'px', 'em', 'vh' ],
+				'range'      => [ 
+					'px' => [ 
+						'min' => 100,
+						'max' => 1024,
+					],
+					'em' => [ 
+						'min' => 10,
+						'max' => 100,
+					],
+					'vh' => [ 
+						'min' => 10,
+						'max' => 100,
+					],
+				],
+				'default'     => [ 
+					'unit' => 'vh',
+					'size' => 70,
+				],
+				'condition'   => [ 
+					'enable_height' => 'yes'
+				],
+				'selectors'   => [ 
+					'{{WRAPPER}} .bdt-slideshow .bdt-slideshow-items' => 'min-height: {{SIZE}}{{UNIT}} !important;',
+				],
+				'render_type' => 'template',
+			]
+		);
+	}
+	
+	/**
+	 * Scroll Down controls
+	 */
+	protected function register_scroll_down_controls() {
+		$this->start_controls_section(
+			'section_content_scroll_button',
+			[ 
+				'label'     => esc_html__( 'Scroll Down', 'bdthemes-prime-slider-lite' ),
+				'condition' => [ 
+					'show_scroll_button' => [ 'yes' ],
+				],
+			]
+		);
+
+		$this->add_control(
+			'duration',
+			[ 
+				'label'      => esc_html__( 'Duration', 'bdthemes-prime-slider-lite' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [ 
+					'px' => [ 
+						'min'  => 100,
+						'max'  => 5000,
+						'step' => 50,
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'offset',
+			[ 
+				'label' => esc_html__( 'Offset', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SLIDER,
+				'range' => [ 
+					'px' => [ 
+						'min'  => -200,
+						'max'  => 200,
+						'step' => 10,
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'scroll_button_text',
+			[ 
+				'label'       => esc_html__( 'Button Text', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'dynamic'     => [ 'active' => true ],
+				'default'     => esc_html__( 'Scroll Down', 'bdthemes-prime-slider-lite' ),
+				'placeholder' => esc_html__( 'Scroll Down', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->add_control(
+			'section_id',
+			[ 
+				'label'       => esc_html__( 'Section ID', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => 'my-header',
+				'description' => esc_html__( "By clicking this scroll button, to which section in your page you want to go? Just write that's section ID here such 'my-header'. N.B: No need to add '#'.", 'bdthemes-prime-slider-lite' ),
+			]
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Show Title controls
+	 */
+	protected function register_show_title_controls() {
+		$this->add_control(
+			'show_title',
+			[ 
+				'label'     => esc_html__( 'Show Title', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'title_html_tag',
+			[ 
+				'label'     => __( 'Title HTML Tag', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SELECT,
+				'default'   => 'h1',
+				'options'   => prime_slider_title_tags(),
+				'condition' => [ 
+					'show_title' => 'yes'
+				]
+			]
+		);
+	}
+
+	/**
+	 * Show Title & Title Tags Controls
+	 */
+	protected function register_show_title_and_title_tags_controls() {
+		$this->add_control(
+			'show_title',
+			[ 
+				'label'     => esc_html__( 'Show Title', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'title_tags',
+			[ 
+				'label'     => __( 'Title HTML Tag', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SELECT,
+				'options'   => prime_slider_title_tags(),
+				'default'   => 'h3',
+				'condition' => [ 
+					'show_title' => 'yes',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Show Sub Title controls
+	 */
+	protected function register_show_sub_title_controls() {
+		$this->add_control(
+			'show_sub_title',
+			[ 
+				'label'     => esc_html__( 'Show Sub Title', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'sub_title_html_tag',
+			[ 
+				'label'     => __( 'Sub Title HTML Tag', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SELECT,
+				'default'   => 'h4',
+				'options'   => prime_slider_title_tags(),
+				'condition' => [ 
+					'show_sub_title' => 'yes'
+				]
+			]
+		);
+	}
+
+	/**
+	 * Show Text controls
+	 */
+	protected function register_show_text_controls() {
+		$this->add_control(
+			'show_text',
+			[ 
+				'label'     => esc_html__( 'Show Text', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before',
+			]
+		);
+	}
+
+	/**
+	 * Text Hide On controls
+	 */
+	protected function register_text_hide_on_controls() {
+		$this->add_control(
+			'text_hide_on',
+			[ 
+				'label'              => __( 'Text Hide On', 'bdthemes-prime-slider-lite' ),
+				'type'               => Controls_Manager::SELECT2,
+				'multiple'           => true,
+				'label_block'        => true,
+				'options'            => [ 
+					'desktop' => __( 'Desktop', 'bdthemes-prime-slider-lite' ),
+					'tablet'  => __( 'Tablet', 'bdthemes-prime-slider-lite' ),
+					'mobile'  => __( 'Mobile', 'bdthemes-prime-slider-lite' ),
+				],
+				'frontend_available' => true,
+				'condition'          => [ 
+					'show_text' => 'yes'
+				]
+			]
+		);
+	}
+
+	/**
+	 * Show readmore controls
+	 */
+	protected function register_show_readmore_controls() {
+		$this->add_control(
+			'show_readmore',
+			[ 
+				'label'   => esc_html__( 'Show Read More', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Show Excerpt controls
+	 */
+	protected function register_show_excerpt_controls() {
+		$this->add_control(
+			'show_excerpt',
+			[ 
+				'label'   => esc_html__( 'Show Text', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Show Post Excerpt controls
+	 */
+	protected function register_show_post_excerpt_controls() {
+		$this->add_control(
+			'show_excerpt',
+			[ 
+				'label'     => __( 'Show Text', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'excerpt_length',
+			[ 
+				'label'       => __( 'Text Limit', 'bdthemes-prime-slider-lite' ),
+				'description' => esc_html__( 'It\'s just work for main content, but not working with excerpt. If you set 0 so you will get full main content.', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::NUMBER,
+				'default'     => 30,
+				'condition'   => [ 
+					'show_excerpt' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'strip_shortcode',
+			[ 
+				'label'     => esc_html__( 'Strip Shortcode', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'condition' => [ 
+					'show_excerpt' => 'yes',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Show date & human diff time controls
+	 */
+	protected function register_show_date_and_human_diff_time_controls() {
+		$this->add_control(
+			'show_date',
+			[ 
+				'label'     => esc_html__( 'Show Date', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'human_diff_time',
+			[ 
+				'label'     => esc_html__( 'Human Different Time', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'condition' => [ 
+					'show_date' => 'yes'
+				]
+			]
+		);
+
+		$this->add_control(
+			'human_diff_time_short',
+			[ 
+				'label'       => esc_html__( 'Time Short Format', 'bdthemes-prime-slider-lite' ),
+				'description' => esc_html__( 'This will work for Hours, Minute and Seconds', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'condition'   => [ 
+					'human_diff_time' => 'yes',
+					'show_date'       => 'yes'
+				]
+			]
+		);
+
+		$this->add_control(
+			'show_time',
+			[ 
+				'label'     => esc_html__( 'Show Time', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'condition' => [ 
+					'human_diff_time' => '',
+					'show_date'       => 'yes'
+				]
+			]
+		);
+	}
+
+	/**
+	 * Show Social Link controls
+	 */
+	protected function register_show_social_link_controls() {
+		$this->add_control(
+			'show_social_icon',
+			[ 
+				'label'   => esc_html__( 'Show Social Link', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Thumbnail Size controls
+	 */
+	protected function register_thumbnail_size_controls() {
+		$this->add_group_control(
+			Group_Control_Image_Size::get_type(),
+			[ 
+				'name'      => 'thumbnail_size',
+				'label'     => esc_html__( 'Image Size', 'bdthemes-prime-slider-lite' ),
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Elementor widget query built from user-configured controls; caching/query shape is expected.
+				'exclude'   => [ 'custom' ],
+				'default'   => 'full',
+				'separator' => 'before'
+			]
+		);
+	}
+
+	/**
+	 * Show Scroll Button controls
+	 */
+	protected function register_show_scroll_button_controls() {
+		$this->add_control(
+			'show_scroll_button',
+			[ 
+				'label'     => esc_html__( 'Show Scroll Button', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+	}
+
+	/**
+	 * Show Button Text controls
+	 */
+	protected function register_show_button_text_controls() {
+		$this->add_control(
+			'show_button_text',
+			[ 
+				'label'     => esc_html__( 'Show Button', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+	}
+
+	/**
+	 * Show button & button text controls
+	 */
+	protected function register_show_button_and_button_text_controls() {
+		$this->add_control(
+			'show_button',
+			[ 
+				'label'     => esc_html__( 'Show Button', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
+			'button_text',
+			[ 
+				'label'       => esc_html__( 'Button Text', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'dynamic'     => [ 'active' => true ],
+				'placeholder' => esc_html__( 'More Details', 'bdthemes-prime-slider-lite' ),
+				'default'     => esc_html__( 'More Details', 'bdthemes-prime-slider-lite' ),
+				'label_block' => false,
+			]
+		);
+	}
+
+	/**
+	 * Show Navigation controls
+	 */
+	protected function register_show_navigation_controls() {
+		$this->add_control(
+			'show_navigation_arrows',
+			[ 
+				'label'   => esc_html__( 'Show Navigation', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Show Pagination controls
+	 */
+	protected function register_show_pagination_controls() {
+		$this->add_control(
+			'show_navigation_dots',
+			[ 
+				'label'   => esc_html__( 'Show Pagination', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Repeater Controls start here
+	 */
+
+	/**
+	 * Repeater Title Controls
+	 */
+	protected function register_repeater_title_controls( $repeater ) {
+		$repeater->add_control(
+			'title',
+			[ 
+				'label'       => esc_html__( 'Title', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+				'dynamic'     => [ 'active' => true ],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Title Link Controls
+	 */
+	protected function register_repeater_title_link_controls( $repeater ) {
+		$repeater->add_control(
+			'title_link',
+			[ 
+				'label'         => esc_html__( 'Title Link', 'bdthemes-prime-slider-lite' ),
+				'type'          => Controls_Manager::URL,
+				'default'       => [ 'url' => '' ],
+				'show_external' => false,
+				'dynamic'       => [ 'active' => true ],
+				'condition'     => [ 
+					'title!' => '',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Sub Title Controls
+	 */
+	protected function register_repeater_sub_title_controls( $repeater ) {
+		$repeater->add_control(
+			'sub_title',
+			[ 
+				'label'       => esc_html__( 'Sub Title', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+				'dynamic'     => [ 'active' => true ],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Text Controls
+	 */
+	protected function register_repeater_text_controls( $repeater ) {
+		$repeater->add_control(
+			'text',
+			[ 
+				'label'       => esc_html__( 'Text', 'bdthemes-prime-slider-lite' ),
+				'default'     => esc_html__( 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem, totam rem aperiam, eaque ipsa quae ab illo inventore et quasi architecto beatae vitae dicta sunt explicabo.', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::WYSIWYG,
+				'label_block' => true,
+				'dynamic'     => [ 'active' => true ],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Image Controls
+	 */
+	protected function register_repeater_image_controls( $repeater ) {
+		$repeater->add_control(
+			'image',
+			[ 
+				'label'   => esc_html__( 'Image', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::MEDIA,
+				'default' => [ 
+					'url' => Utils::get_placeholder_image_src(),
+				],
+				'dynamic' => [ 'active' => true ],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Button Text & Link Controls
+	 */
+	protected function register_repeater_button_text_link_controls( $repeater ) {
+		$repeater->add_control(
+			'slide_button_text',
+			[ 
+				'label'       => esc_html__( 'Button Text', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Read More', 'bdthemes-prime-slider-lite' ),
+				'label_block' => true,
+				'dynamic'     => [ 'active' => true ],
+			]
+		);
+
+		$repeater->add_control(
+			'button_link',
+			[ 
+				'label'     => esc_html__( 'Button Link', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::URL,
+				'default'   => [ 'url' => '#' ],
+				'dynamic'   => [ 'active' => true ],
+				'condition' => [ 
+					'slide_button_text!' => '',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Repeater Excerpt Controls
+	 */
+	protected function register_repeater_excerpt_controls( $repeater ) {
+		$repeater->add_control(
+			'excerpt',
+			[ 
+				'label'       => esc_html__( 'Excerpt', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::WYSIWYG,
+				'default'     => esc_html__( 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem, totam rem aperiam, eaque ipsa quae ab illo inventore et quasi architecto beatae vitae dicta sunt explicabo.', 'bdthemes-prime-slider-lite' ),
+				'label_block' => true,
+				'dynamic'     => [ 'active' => true ],
+			]
+		);
+	}
+
+	/**
+	 * Autoplay controls
+	 */
+	protected function register_autoplay_controls() {
+		$this->add_control(
+			'autoplay',
+			[ 
+				'label'   => __( 'Autoplay', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+
+		$this->add_control(
+			'autoplay_speed',
+			[ 
+				'label'     => esc_html__( 'Autoplay Speed', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::NUMBER,
+				'default'   => 5000,
+				'condition' => [ 
+					'autoplay' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'pauseonhover',
+			[ 
+				'label' 	=> esc_html__( 'Pause on Hover', 'bdthemes-prime-slider-lite' ),
+				'type'  	=> Controls_Manager::SWITCHER,
+				'condition' => [
+					'autoplay' => 'yes',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Grab Cursor controls
+	 */
+	protected function register_grab_cursor_controls() {
+		$this->add_control(
+			'grab_cursor',
+			[ 
+				'label' => __( 'Grab Cursor', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SWITCHER,
+			]
+		);
+	}
+
+	/**
+	 * Centered Slides controls
+	 */
+	protected function register_centered_slides_controls() {
+		$this->add_control(
+			'centered_slides',
+			[ 
+				'label'       => __( 'Center Slide', 'bdthemes-prime-slider-lite' ),
+				'description' => __( 'Use even items from Layout > Columns settings for better preview.', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SWITCHER,
+			]
+		);
+	}
+
+	/**
+	 * Show Author controls
+	 */
+	protected function register_show_author_controls() {
+		$this->add_control(
+			'show_author',
+			[ 
+				'label'     => esc_html__( 'Show Author', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'separator' => 'before'
+			]
+		);
+	}
+
+	/**
+	 * Meta Separator controls
+	 */
+	protected function register_meta_separator_controls() {
+		$this->add_control(
+			'meta_separator',
+			[ 
+				'label'       => __( 'Separator', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => '//',
+				'label_block' => false,
+			]
+		);
+	}
+
+	/**
+	 * Primary Thumbnail controls
+	 */
+	protected function register_primary_thumbnail_controls() {
+		$this->add_group_control(
+			Group_Control_Image_Size::get_type(),
+			[ 
+				'name'      => 'primary_thumbnail',
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Elementor widget query built from user-configured controls; caching/query shape is expected.
+				'exclude'   => [ 'custom' ],
+				'default'   => 'full',
+				'separator' => 'before'
+			]
+		);
+	}
+
+	/**
+	 * Free Mode controls
+	 */
+	protected function register_free_mode_controls() {
+		$this->add_control(
+			'free_mode',
+			[ 
+				'label' => __( 'Drag free Mode', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SWITCHER,
+			]
+		);
+	}
+
+	/**
+	 * Speed & Observer controls
+	 */
+	protected function register_speed_observer_controls() {
+		$this->add_control(
+			'speed',
+			[ 
+				'label'   => __( 'Animation Speed (ms)', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SLIDER,
+				'default' => [ 
+					'size' => 900,
+				],
+				'range'   => [ 
+					'px' => [ 
+						'min'  => 100,
+						'max'  => 5000,
+						'step' => 50,
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'observer',
+			[ 
+				'label'       => __( 'Observer', 'bdthemes-prime-slider-lite' ),
+				'description' => __( 'When you use carousel in any hidden place (in tabs, accordion etc) keep it yes.', 'bdthemes-prime-slider-lite' ),
+				'type'        => Controls_Manager::SWITCHER,
+			]
+		);
+	}
+
+	/**
+	 * loop controls
+	 */
+	protected function register_loop_controls() {
+		$this->add_control(
+			'loop',
+			[ 
+				'label'   => __( 'Loop', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+	}
+
+	/**
+	 * Loop, Rewind & Mousewheel controls
+	 */
+	protected function register_loop_rewind_mousewheel_controls() {
+		$this->add_control(
+			'loop',
+			[ 
+				'label'     => __( 'Loop', 'bdthemes-prime-slider-lite' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'default'   => 'yes',
+				'condition' => [ 
+				],
+			]
+		);
+
+		$this->add_control(
+			'mousewheel',
+			[ 
+				'label' => __( 'Mousewheel', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::SWITCHER,
+			]
+		);
+	}
+
+	/**
+	 * Social links text controls
+	 */
+	protected function register_social_links_text_controls() {
+		$this->start_controls_section(
+			'section_content_social_link',
+			[ 
+				'label'     => __( 'Social Link', 'bdthemes-prime-slider-lite' ),
+				'condition' => [ 
+					'show_social_icon' => 'yes',
+				],
+			]
+		);
+
+		$repeater = new Repeater();
+
+		$repeater->add_control(
+			'social_link_title',
+			[ 
+				'label'   => __( 'Title', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::TEXT,
+				'dynamic' => [ 'active' => true ],
+			]
+		);
+
+		$repeater->add_control(
+			'social_icon_link',
+			[ 
+				'label' => __( 'Link', 'bdthemes-prime-slider-lite' ),
+				'type'  => Controls_Manager::URL,
+				'dynamic' => [ 'active' => true ],
+			]
+		);
+
+		$this->add_control(
+			'social_link_list',
+			[ 
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $repeater->get_controls(),
+				'default'     => [ 
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.facebook.com/bdthemes/' ],
+						'social_link_title' => __( 'Facebook', 'bdthemes-prime-slider-lite' ),
+					],
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.twitter.com/bdthemes/' ],
+						'social_link_title' => __( 'Twitter', 'bdthemes-prime-slider-lite' ),
+					],
+					[ 
+						'social_icon_link'  => [ 'url' => 'http://www.instagram.com/bdthemes/' ],
+						'social_link_title' => __( 'Instagram', 'bdthemes-prime-slider-lite' ),
+					],
+				],
+				'title_field' => '{{ social_link_title }}',
+			]
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Button Previous & Next Text controls
+	 */
+	protected function register_previous_next_buttons_text_controls() {
+		$this->start_controls_tabs(
+			'tabs_previous_next_buttons',
+			[
+				'separator' => 'before',
+			]
+		);
+		
+		$this->start_controls_tab(
+			'tab_button_previous',
+			[
+				'label' => esc_html__( 'Previous', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+		
+		$this->add_control(
+			'button_previous_text',
+			[
+				'label'   => esc_html__( 'Text', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::TEXT,
+				'dynamic' => [ 'active' => true ],
+				'default' => esc_html__( 'Prev', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+		
+		$this->end_controls_tab();
+		
+		$this->start_controls_tab(
+			'tab_button_next',
+			[
+				'label' => esc_html__( 'Next', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+		
+		$this->add_control(
+			'button_next_text',
+			[
+				'label'   => esc_html__( 'Text', 'bdthemes-prime-slider-lite' ),
+				'type'    => Controls_Manager::TEXT,
+				'dynamic' => [ 'active' => true ],
+				'default' => esc_html__( 'Next', 'bdthemes-prime-slider-lite' ),
+			]
+		);
+		
+		$this->end_controls_tabs();
+	}
+
+	/**
+	 * Render part start from here
+	 */
+	/**
+	 * Slideshow Settings
+	 */
+	public function render_slideshows_settings( $min_height ) {
+		$settings = $this->get_settings_for_display();
+
+		//Viewport Height
+		$ratio = ( ! empty( $settings['slider_size_ratio']['width'] ) && ! empty( $settings['slider_size_ratio']['height'] ) ) ? $settings['slider_size_ratio']['width'] . ":" . $settings['slider_size_ratio']['height'] : '16:9';
+
+		// if ( isset( $settings["viewport_height"]["size"] ) && 'vh' == $settings['viewport_height']['unit'] ) {
+		// 	$ratio = false;
+		// }
+
+		if ( $settings['enable_height'] && ! empty( $settings["viewport_height"]["size"] ) ) {
+			$ratio = false;
+		}
+
+		$this->add_render_attribute( 'slideshow-items', 'class', 'bdt-slideshow-items' );
+
+		// if ( isset( $settings["viewport_height"]["size"] ) && $ratio == false ) {
+		// 	$this->add_render_attribute(
+		// 		[ 
+		// 			'slideshow-items' => [ 
+		// 				'style' => 'min-height:' . $settings["viewport_height"]["size"] . 'vh'
+		// 			]
+		// 		]
+		// 	);
+		// }
+
+		// An empty or zero interval would make the slider change slides non-stop.
+		$autoplay_interval = isset( $settings['autoplay_interval'] ) ? absint( $settings['autoplay_interval'] ) : 0;
+		$autoplay_interval = $autoplay_interval > 0 ? $autoplay_interval : 7000;
+
+		$this->add_render_attribute(
+			[ 
+				'slideshow' => [ 
+					'bdt-slideshow' => [ 
+						wp_json_encode( [ 
+							'animation'         => 'fade',
+							'ratio'             => $ratio,
+							'min-height'        => ( ! empty( $settings['slider_min_height']['size'] ) && $ratio !== false ) ? $settings['slider_min_height']['size'] : ( $ratio !== false ? $min_height : false ),
+							'autoplay'          => ( $settings['autoplay'] ) ? true : false,
+							'autoplay-interval' => $autoplay_interval,
+							'pause-on-hover'    => ( 'yes' === $settings['pause_on_hover'] ) ? true : false,
+							'velocity'          => ( $settings['velocity']['size'] ) ? $settings['velocity']['size'] : 1,
+							'finite'            => ( $settings['finite'] ) ? false : true,
+						] ),
+					],
+				],
+			]
+		);
+
+		?>
+		<div class="bdt-prime-slider">
+			<div <?php $this->print_render_attribute_string( 'prime-slider' ); ?>>
+				<div class="bdt-position-relative bdt-visible-toggle" <?php $this->print_render_attribute_string( 'slideshow' ); ?>>
+					<ul <?php $this->print_render_attribute_string( 'slideshow-items' ); ?>>
+						<?php
+	}
+
+	/**
+	 * Sub Title Text Here
+	 */
+	public function render_sub_title( $slide, $class, $data_reveal ) {
+		$settings = $this->get_settings_for_display();
+
+		if ( '' == $settings['show_sub_title'] ) {
+			return;
+		}
+
+		printf(
+			'<%1$s class="%2$s" data-reveal="%3$s">%4$s</%1$s>',
+			esc_attr( Utils::get_valid_html_tag( $settings['sub_title_html_tag'] ) ),
+			esc_attr( $class ), esc_attr( $data_reveal ),
+			wp_kses( $slide['sub_title'], prime_slider_allow_tags( 'title' ) )
+		);
+	}
+
+	/**
+	 * Title Text Here
+	 */
+	public function render_title( $slide, $class, $data_reveal ) {
+		$settings = $this->get_settings_for_display();
+
+		if ( '' == $settings['show_title'] ) {
+			return;
+		}
+
+		if ( $slide['title'] ) {
+			$this->add_link_attributes( 'title_link', $slide['title_link'], true );
+		}
+
+		?>
+						<<?php echo esc_attr( Utils::get_valid_html_tag( $settings['title_html_tag'] ) ); ?>
+							class="<?php echo esc_attr( $class ); ?>" data-reveal="<?php echo esc_attr( $data_reveal ); ?>">
+							<?php if ( '' !== $slide['title_link']['url'] ) : ?>
+								<a <?php $this->print_render_attribute_string( 'title_link' ); ?>>
+								<?php endif; ?>
+								<?php echo wp_kses_post( prime_slider_first_word( $slide['title'] ) ); ?>
+								<?php if ( '' !== $slide['title_link']['url'] ) : ?>
+								</a>
+							<?php endif; ?>
+						</<?php echo esc_attr( Utils::get_valid_html_tag( $settings['title_html_tag'] ) ); ?>>
+						<?php
+	}
+
+	/**
+	 * Post Title Here
+	 */
+	public function render_post_title() {
+		$settings = $this->get_settings_for_display();
+
+		if ( ! $this->get_settings( 'show_title' ) ) {
+			return;
+		}
+
+		printf(
+			'<%1$s class="bdt-title" data-reveal="reveal-active">
+				<a href="%2$s" title="%3$s">%4$s</a>
+			</%1$s>',
+			esc_attr( Utils::get_valid_html_tag( $settings['title_tags'] ) ),
+			esc_url( get_permalink() ),
+			esc_attr( get_the_title() ),
+			esc_html( get_the_title() )
+		);
+	}
+
+	/**
+	 * Social Link (pagepiling, mount, dragon, sequester, woocommerce)
+	 */
+	public function render_social_link_repeater() {
+		$settings = $this->get_settings_for_display();
+
+		foreach ( $settings['social_link_list'] as $index => $link ) :
+
+			$link_key = 'link_' . $index;
+
+			if ( isset( $link['social_icon_link']['url'] ) && ! empty( $link['social_icon_link']['url'] ) ) {
+				$this->add_link_attributes( $link_key, $link['social_icon_link'] );
+				$this->add_render_attribute( $link_key, 'aria-label', 'Social Link ' . $link['social_link_title'], true );
+			}
+
+			?>
+							<a <?php $this->print_render_attribute_string( $link_key ); ?>>
+								<span class="bdt-social-share-title">
+									<?php echo esc_html( $link['social_link_title'] ); ?>
+								</span>
+							</a>
+						<?php endforeach;
+	}
+
+	/**
+	 * Background image
+	 */
+	public function rendar_item_image( $item, $class ) {
+		$settings = $this->get_settings_for_display();
+
+		$image_src = Group_Control_Image_Size::get_attachment_image_src( $item['image']['id'], 'thumbnail_size', $settings );
+
+		if ( $image_src ) {
+			$image_final_src = $image_src;
+		} elseif ( $item['image']['url'] ) {
+			$image_final_src = $item['image']['url'];
+		} else {
+			return;
+		}
+		?>
+
+						<div class="<?php echo esc_attr( $class ); ?>"
+							style="background-image: url('<?php echo esc_url( $image_final_src ); ?>')"></div>
+
+						<?php
+	}
+
+	/**
+	 * Image
+	 */
+	public function rendar_image( $slide, $reveal ) {
+		$settings = $this->get_settings_for_display();
+
+		?>
+
+						<div class="bdt-image-wrap" <?php echo esc_attr( $reveal ) ?>>
+							<?php
+							$thumb_url = Group_Control_Image_Size::get_attachment_image_src( $slide['image']['id'], 'thumbnail_size', $settings );
+							if ( ! $thumb_url ) {
+								printf( '<img src="%1$s" alt="%2$s" class="bdt-img">', esc_url( $slide['image']['url'] ), esc_html( $slide['title'] ) );
+							} else {
+								print ( wp_get_attachment_image(
+									$slide['image']['id'],
+									$settings['thumbnail_size_size'],
+									false,
+									[ 
+										'class' => 'bdt-img',
+										'alt'   => esc_html( $slide['title'] )
+									]
+								) );
+							}
+							?>
+						</div>
+						<?php
+	}
+
+	/**
+	 * Social Icons Here
+	 */
+	public function render_social_link( $position = 'right', $label = false, $class = [] ) {
+		// get_settings_for_display() also resolves dynamic tags in the link titles and URLs.
+		$settings = $this->get_settings_for_display();
+
+		if ( '' == $settings['show_social_icon'] ) {
+			return;
+		}
+
+		$this->add_render_attribute( 'social-icon', 'class', 'bdt-social-icon reveal-muted' );
+		$this->add_render_attribute( 'social-icon', 'class', $class );
+
+		?>
+		<div <?php $this->print_render_attribute_string( 'social-icon' ); ?>>
+
+			<?php if ( $label ) : ?>
+				<h3>
+					<?php esc_html_e( 'Follow Us', 'bdthemes-prime-slider-lite' ); ?>
+				</h3>
+			<?php endif; ?>
+
+			<?php
+			foreach ( $settings['social_link_list'] as $index => $link ) :
+
+				$link_key = 'link_' . $index;
+
+				$tooltip = '';
+				if ( 'yes' === $settings['social_icon_tooltip'] ) {
+
+					$social_link_title = isset( $link['social_link_title'] ) ? (string) $link['social_link_title'] : '';
+					$tooltip_text      = wp_kses_post( wp_strip_all_tags( $social_link_title ) );
+					$tooltip           = 'title: ' . htmlspecialchars( $tooltip_text, ENT_QUOTES ) . ';';
+
+				}
+
+				if ( isset( $link['social_icon_link']['url'] ) && ! empty( $link['social_icon_link']['url'] ) ) {
+					$this->add_link_attributes( $link_key, $link['social_icon_link'] );
+				}
+
+				?>
+				<a <?php $this->print_render_attribute_string( $link_key ); ?> data-bdt-tooltip="<?php echo esc_attr( $tooltip ); ?>">
+					<span><span>
+							<?php Icons_Manager::render_icon( $link['social_icon'], [ 'aria-hidden' => 'true', 'class' => 'fa-fw' ] ); ?>
+						</span></span>
+				</a>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	public function rendar_post_image( $class ) {
+		$settings = $this->get_settings_for_display();
+
+		$placeholder_image_src = Utils::get_placeholder_image_src();
+		$image_src             = Group_Control_Image_Size::get_attachment_image_src( get_post_thumbnail_id(), 'thumbnail_size', $settings );
+
+		if ( $image_src ) {
+			$image_final_src = $image_src;
+		} elseif ( $placeholder_image_src ) {
+			$image_final_src = $placeholder_image_src;
+		} else {
+			return;
+		}
+
+		?>
+						<div class="<?php echo esc_attr( $class ); ?>"
+							style="background-image: url('<?php echo esc_url( $image_final_src ); ?>')"></div>
+						<?php
+	}
+
+	public function render_image( $post_id, $size ) {
+		$placeholder_image_src = Utils::get_placeholder_image_src();
+		$image_src             = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), $size );
+
+		if ( ! $image_src ) {
+			printf( '<img src="%1$s" alt="%2$s" class="bdt-img swiper-lazy">', esc_url( $placeholder_image_src ), esc_html( get_the_title() ) );
+		} else {
+			print ( wp_get_attachment_image(
+				get_post_thumbnail_id(),
+				$size,
+				false,
+				[ 
+					'class' => 'bdt-img swiper-lazy',
+					'alt'   => esc_html( get_the_title() )
+				]
+			) );
+		}
+	}
+
+	/**
+	 * Taxonomy whose terms are listed for a post.
+	 *
+	 * @param int|null $post_id Post being rendered. Sources such as Manual
+	 *                          Selection, Current Query or Related are not post
+	 *                          types, so with a post ID the post's own type is
+	 *                          used for them instead.
+	 * @return string
+	 */
+	protected function ps_taxonomy_switcher( $post_id = null ) {
+		$taxonomy = '';
+		$source   = $this->get_settings( 'posts_source' );
+
+		if ( $post_id && ! post_type_exists( (string) $source ) ) {
+			$source = get_post_type( $post_id );
+		}
+
+		switch ( $source ) {
+			case 'post':
+				$taxonomy = 'category';
+				break;
+			case 'product':
+				$taxonomy = 'product_cat';
+				break;
+			case 'portfolio':
+				$taxonomy = 'product_filter';
+				break;
+			case 'bdthemes-testimonial':
+				$taxonomy = 'testimonial_categories';
+				break;
+			case 'faq':
+				$taxonomy = 'faq_filter';
+				break;
+			case 'courses':
+				$taxonomy = 'course-category';
+				break;
+			case 'project':
+				$taxonomy = 'category';
+				break;
+		}
+		return $taxonomy;
+	}
+
+	// General function to get a list of terms for any taxonomy
+	protected function ps_get_taxonomy_list( $post_id, $taxonomy = 'category' ) {
+		$terms = get_the_term_list( $post_id, $taxonomy, '', ' ' );
+		if ( is_wp_error( $terms ) || ! $terms ) {
+			return '';
+		}
+		return $terms;
+	}
+
+	/**
+	 * Extension point for add-on plugins.
+	 *
+	 * Fired while a widget registers its content controls, so an add-on (for
+	 * example Prime Slider Pro) can register additional controls at this point.
+	 * This plugin registers none of its own here.
+	 *
+	 * @return void
+	 */
+	protected function register_addon_controls() {
+		do_action( 'prime_slider/widget/register_controls', $this );
+	}
+
+	/**
+	 * Extension point for add-on plugins.
+	 *
+	 * Lets an add-on add render attributes to $attribute_name before the widget
+	 * is rendered. This plugin adds none of its own here.
+	 *
+	 * @param string $attribute_name Render attribute key to extend.
+	 * @return void
+	 */
+	public function add_addon_render_attributes( $attribute_name ) {
+		do_action( 'prime_slider/widget/render_attributes', $this, $attribute_name );
+	}
+
+	/**
+	 * Extension point for add-on plugins.
+	 *
+	 * Lets an add-on append its own script handles to a widget's dependencies.
+	 * This plugin appends none of its own here.
+	 *
+	 * @param array $depends Script handles this widget needs.
+	 * @return array
+	 */
+	protected function addon_script_depends( array $depends ) {
+		return (array) apply_filters( 'prime_slider/widget/script_depends', $depends, $this );
+	}
+
+}

@@ -1,0 +1,223 @@
+<?php
+
+namespace PrimeSlider\Modules\Blog\Skins;
+
+use Elementor\Group_Control_Image_Size;
+use Elementor\Skin_Base as Elementor_Skin_Base;
+use PrimeSlider\Utils;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+// Exit if accessed directly
+
+class Skin_Zinest extends Elementor_Skin_Base {
+
+    public function get_id() {
+        return 'zinest';
+    }
+
+    public function get_title() {
+        return esc_html__('Zinest', 'bdthemes-prime-slider-lite');
+    }
+
+    public function render_navigation_arrows() {
+        $settings = $this->parent->get_settings_for_display();
+
+    ?>
+
+        <?php if ($settings['show_navigation_arrows']) : ?>
+            <div class="bdt-navigation-arrows bdt-position-bottom-right reveal-muted">
+                <a class="bdt-prime-slider-previous" href="#" bdt-slidenav-previous bdt-slideshow-item="previous"></a>
+                <a class="bdt-prime-slider-next" href="#" bdt-slidenav-next bdt-slideshow-item="next"></a>
+            </div>
+        <?php endif; ?>
+
+    <?php
+
+    }
+
+    public function render_footer() {
+        $settings = $this->parent->get_settings_for_display();
+    ?>
+
+        </ul>
+
+        <?php $this->render_navigation_arrows(); ?>
+
+        </div>
+
+        <?php $this->parent->render_social_link($position = 'left', $label = false, $class = []); ?>
+
+        <?php
+        $featured_query = ('yes' === $settings['show_featured_post']) ? $this->parent->query_featured_posts() : null;
+
+        if ($featured_query && $featured_query->have_posts()) : ?>
+            <div class="bdt-ps-blog-container bdt-ps-blog-featured bdt-position-bottom bdt-flex bdt-flex-middle reveal-muted">
+                <div class="bdt-child-width-1-3 bdt-grid bdt-grid-medium bdt-flex bdt-flex-middle" bdt-grid>
+                    <?php
+                    while ($featured_query->have_posts()) {
+                        $featured_query->the_post();
+                    ?>
+                        <div>
+                            <div class="bdt-ps-featured bdt-position-relative bdt-grid-small bdt-flex bdt-flex-middle">
+                                <div class="bdt-width-1-1 bdt-width-1-2@m">
+                                    <div class="bdt-ps-featured-thumbnav">
+                                        <a href="<?php echo esc_url(get_permalink(get_the_ID())); ?>">
+                                            <?php $this->rendar_item_image(); ?>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="bdt-width-1-1 bdt-width-1-2@m bdt-visible@m">
+                                    <div class="bdt-ps-content">
+                                        <div class="bdt-ps-title">
+                                            <a href="<?php echo esc_url(get_permalink(get_the_ID())); ?>">
+                                                <?php echo wp_kses_post(prime_slider_first_word(get_the_title())); ?>
+                                            </a>
+                                        </div>
+                                        <div class="bdt-ps-desc">
+                                            <?php $this->parent->render_excerpt();
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php
+                    }
+                    wp_reset_postdata();
+                    ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        </div>
+        </div>
+    <?php
+    }
+
+    public function rendar_item_image() {
+
+        $image_src = wp_get_attachment_image_src(get_post_thumbnail_id(), 'medium');
+        $image_src = isset($image_src[0]) ? $image_src[0] : Utils::get_placeholder_image_src();
+
+    ?>
+
+        <img src="<?php echo esc_url($image_src); ?>" alt="<?php echo esc_attr(wp_strip_all_tags(get_the_title())); ?>">
+
+    <?php
+    }
+
+    public function render_item_content($post) {
+        $settings = $this->parent->get_settings_for_display();
+
+        $parallax_title = 'data-bdt-slideshow-parallax="y: 80,0,-80; opacity: 1,1,0"';
+        $parallax_text = 'data-bdt-slideshow-parallax="y: 110,0,-90; opacity: 1,1,0"';
+
+        if ( ! empty( $settings['animation_status'] ) && 'yes' === $settings['animation_status'] && ! empty( $settings['animation_of'] ) ) {
+        	if (in_array(".bdt-title-tag", $settings['animation_of'])) {
+        	    $parallax_title = '';
+        	}
+        	if (in_array(".bdt-blog-text", $settings['animation_of'])) {
+        	    $parallax_text = '';
+        	}
+        }
+
+    ?>
+
+        <div class="bdt-ps-zinest-container">
+            <div class="bdt-prime-slider-wrapper">
+                <div class="bdt-prime-slider-content">
+                    <div class="bdt-prime-slider-desc">
+
+                        <?php if ('yes' == $settings['show_category']) : ?>
+                            <div class="bdt-ps-category-wrapper" data-bdt-slideshow-parallax="y: 50,0,-50; opacity: 1,1,0">
+                                <?php $this->parent->render_category(); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ('yes' == $settings['show_title']) : ?>
+                            <div class="bdt-main-title" data-reveal="reveal-active">
+                                <<?php echo esc_attr(Utils::get_valid_html_tag($settings['title_html_tag'])); ?> class="bdt-title-tag" <?php echo wp_kses_post($parallax_title); ?>>
+
+                                    <a href="<?php echo esc_url(get_permalink($post->ID)); ?>">
+                                        <?php echo wp_kses_post(prime_slider_first_word(get_the_title())); ?>
+                                    </a>
+
+                                </<?php echo esc_attr(Utils::get_valid_html_tag($settings['title_html_tag'])); ?>>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ('yes' == $settings['show_meta']) : ?>
+                            <?php $this->parent->render_meta(); ?>
+                        <?php endif; ?>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <?php
+    }
+
+    public function render_slides_loop() {
+        $settings = $this->parent->get_settings_for_display();
+
+        $kenburns_reverse = $settings['kenburns_reverse'] ? ' bdt-animation-reverse' : '';
+
+        $slide_index = 1;
+
+        global $post;
+
+        $wp_query = $this->parent->query_posts();
+
+        while ($wp_query->have_posts()) {
+            $wp_query->the_post();
+
+            $image_src       = Group_Control_Image_Size::get_attachment_image_src(get_post_thumbnail_id(), 'thumbnail_size', $settings);
+            $image_final_src = $image_src ? $image_src : Utils::get_placeholder_image_src();
+
+        ?>
+
+            <li class="bdt-slideshow-item bdt-flex bdt-flex-middle elementor-repeater-item-<?php echo esc_attr(get_the_ID()); ?>">
+
+                <?php if ('yes' == $settings['kenburns_animation']) : ?>
+                    <div class="bdt-position-cover bdt-animation-kenburns<?php echo esc_attr($kenburns_reverse); ?> bdt-transform-origin-center-left">
+                    <?php endif; ?>
+
+                    <div class="bdt-ps-slide-img" style="background-image: url('<?php echo esc_url($image_final_src); ?>')"></div>
+
+                    <?php if ('yes' == $settings['kenburns_animation']) : ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php $this->parent->render_overlay(); ?>
+
+                <?php $this->render_item_content($post); ?>
+
+                <?php $slide_index++; ?>
+
+            </li>
+
+
+<?php
+        }
+
+        wp_reset_postdata();
+    }
+
+    public function render() {
+        $skin_name = 'zinest';
+
+        if ( ! $this->parent->query_posts( true )->have_posts() ) {
+            $this->parent->render_no_posts_notice();
+            return;
+        }
+
+        $this->parent->render_header($skin_name);
+
+        $this->render_slides_loop();
+
+        $this->render_footer();
+    }
+}

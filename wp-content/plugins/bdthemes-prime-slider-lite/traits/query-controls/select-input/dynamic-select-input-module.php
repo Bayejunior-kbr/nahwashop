@@ -1,0 +1,427 @@
+<?php
+
+namespace PrimeSlider\Traits\QueryControls\SelectInput;
+
+use Exception;
+use WP_Query;
+
+defined('ABSPATH') || die();
+
+class Dynamic_Select_Input_Module
+{
+
+	const ACTION = '';
+
+	private static $instance = null;
+
+	/**
+	 * Returns the instance.
+	 *
+	 * @return object
+	 * @since 2.0.0
+	 */
+	public static function get_instance()
+	{
+		// If the single instance hasn't been set, set it now.
+		if (null == self::$instance) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Init method
+	 */
+
+	/**
+	 * Constructor.
+	 */
+	public function init()
+	{
+		add_action('wp_ajax_prime_slider_dynamic_select_input_data', array($this, 'getSelectInputData'));
+	}
+
+	/**
+	 * get Ajax Data
+	 */
+	public function getSelectInputData()
+	{
+		$nonce = isset($_POST['security']) ? sanitize_text_field(wp_unslash($_POST['security'])) : '';
+
+		try {
+			if (!wp_verify_nonce($nonce, 'bdtps_dynamic_select')) {
+				throw new Exception('Invalid request');
+			}
+
+			if (!current_user_can('edit_posts')) {
+				throw new Exception('Unauthorized request');
+			}
+
+			$query = isset($_POST['query']) ? sanitize_key(wp_unslash($_POST['query'])) : '';
+
+			if ($query == 'terms') {
+				$data = $this->getTerms();
+			} else if ($query == 'authors') {
+				$data = $this->getAuthors();
+			} else if ($query == 'authors_role') {
+				$data = $this->getAuthorRoles();
+			} else if ($query == 'only_post') {
+				$data = $this->getOnlyPosts();
+			} else {
+				$data = $this->getPosts();
+			}
+
+			wp_send_json_success($data);
+		} catch (Exception $e) {
+			wp_send_json_error($e->getMessage());
+		}
+
+		die();
+	}
+
+	/**
+	 * Get Post Type
+	 * @return string
+	 */
+	protected function getPostType()
+	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData().
+		$post_type = isset($_POST['post_type']) ? sanitize_key(wp_unslash($_POST['post_type'])) : '';
+
+		if ('' === $post_type) {
+			return '';
+		}
+
+		// '_related_post_type' is an internal marker handled by the callers, everything
+		// else must be a registered public post type so the endpoint cannot be used to
+		// enumerate private or internal post types.
+		if ('_related_post_type' === $post_type) {
+			return $post_type;
+		}
+
+		return in_array($post_type, $this->getAllPublicPostTypes(), true) ? $post_type : '';
+	}
+
+	/**
+	 * @return string[]|\WP_Post_Type[]
+	 */
+	protected function getAllPublicPostTypes()
+	{
+		// Media and saved templates can't be shown by these widgets, so they are not offered.
+		return array_values(array_diff(get_post_types(['public' => true]), ['attachment', 'elementor_library']));
+	}
+
+	/**
+	 * Build the select options for a post query, leaving out posts the current
+	 * user may not read (for example other authors' drafts for a Contributor),
+	 * so neither their titles nor a content search can reveal them.
+	 *
+	 * @param WP_Query $query
+	 *
+	 * @return array
+	 */
+	protected function getPostResults(WP_Query $query)
+	{
+		$results = [];
+
+		foreach ($query->posts as $post) {
+			if (!current_user_can('read_post', $post->ID)) {
+				continue;
+			}
+
+			$post_type_obj = get_post_type_object($post->post_type);
+			$text          = ($post_type_obj && $post_type_obj->hierarchical) ? $this->get_post_name_with_parents($post) : $post->post_title;
+
+			// Sent as plain text: the control escapes it when it is displayed.
+			$results[] = [
+				'id'   => $post->ID,
+				'text' => html_entity_decode(wp_strip_all_tags($text), ENT_QUOTES, get_bloginfo('charset')),
+			];
+		}
+
+		return $results;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getSearchQuery()
+	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData().
+		return isset($_POST['search_text']) ? sanitize_text_field(wp_unslash($_POST['search_text'])) : '';
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getselecedIds()
+	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData().
+		if (!isset($_POST['ids'])) {
+			return [];
+		}
+
+		// Every consumer feeds this into post__in / include, so force a flat list of
+		// positive integers instead of trusting the raw request shape.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData().
+		return wp_parse_id_list(wp_unslash($_POST['ids']));
+	}
+
+
+	/**
+	 * @param string $taxonomy
+	 *
+	 * @return mixed|string
+	 */
+	public function getTaxonomyName($taxonomy = '')
+	{
+		$taxonomies = get_taxonomies(['public' => true], 'objects');
+		$taxonomies = array_column($taxonomies, 'label', 'name');
+
+		return isset($taxonomies[$taxonomy]) ? $taxonomies[$taxonomy] : '';
+	}
+
+	/**
+	 * @return string[]|\WP_Taxonomy[]
+	 */
+	protected function getAllPublicTaxonomies()
+	{
+		return array_values(get_taxonomies(['public' => true]));
+	}
+
+	/**
+	 * Get Post Query Data
+	 *
+	 * @return array
+	 */
+	public function getPosts()
+	{
+		$include = $this->getselecedIds();
+		$searchText = $this->getSearchQuery();
+
+		$args = [];
+
+		if ($this->getPostType() && $this->getPostType() !== '_related_post_type') {
+			$args['post_type'] = $this->getPostType();
+		} else {
+			$args['post_type'] = $this->getAllPublicPostTypes();
+		}
+
+		if (!empty($include)) {
+			$args['post__in'] = $include;
+			$args['posts_per_page'] = count($include);
+		} else {
+			$args['posts_per_page'] = 20;
+		}
+
+		if ($searchText) {
+			$args['s'] = $searchText;
+		}
+
+		$args['ignore_sticky_posts'] = true;
+
+		return $this->getPostResults(new WP_Query($args));
+	}
+
+	public function getOnlyPosts()
+	{
+		$include = $this->getselecedIds();
+		$searchText = $this->getSearchQuery();
+
+		$args = [];
+
+		$args['post_type'] = 'post';
+
+
+		if (!empty($include)) {
+			$args['post__in'] = $include;
+			$args['posts_per_page'] = count($include);
+		} else {
+			$args['posts_per_page'] = 20;
+		}
+
+		if ($searchText) {
+			$args['s'] = $searchText;
+		}
+
+		$args['ignore_sticky_posts'] = true;
+
+		return $this->getPostResults(new WP_Query($args));
+	}
+
+	private function get_post_name_with_parents($post, $max = 3)
+	{
+		if (0 === $post->post_parent) {
+			return $post->post_title;
+		}
+		$separator = is_rtl() ? ' < ' : ' > ';
+		$test_post = $post;
+		$names = [];
+		while ($test_post->post_parent > 0) {
+			$test_post = get_post($test_post->post_parent);
+			if (!$test_post) {
+				break;
+			}
+			$names[] = $test_post->post_title;
+		}
+
+		$names = array_reverse($names);
+		if (count($names) < ($max)) {
+			return implode($separator, $names) . $separator . $post->post_title;
+		}
+
+		$name_string = '';
+		for ($i = 0; $i < ($max - 1); $i++) {
+			$name_string .= $names[$i] . $separator;
+		}
+
+		return $name_string . '...' . $separator . $post->post_title;
+	}
+
+	/**
+	 * Get Terms query data
+	 *
+	 * @return array
+	 */
+	public function getTerms()
+	{
+		$search_text = $this->getSearchQuery();
+		$taxonomies = $this->getAllPublicTaxonomies();
+		$include = $this->getselecedIds();
+
+		if ($this->getPostType() == '_related_post_type') {
+			$post_type = 'any';
+		} elseif ($this->getPostType()) {
+			$post_type = $this->getPostType();
+		} else {
+			$post_type = 'any';
+		}
+		$post_taxonomies = get_object_taxonomies($post_type);
+		$taxonomies = array_intersect($post_taxonomies, $taxonomies);
+		$data = [];
+
+		if (empty($taxonomies)) {
+			return $data;
+		}
+
+		$args = [
+			'taxonomy' => $taxonomies,
+			'hide_empty' => true,
+		];
+
+		if (!empty($include)) {
+			$args['include'] = $include;
+		}
+
+		if ($search_text) {
+			$args['number'] = 20;
+			$args['search'] = $search_text;
+		}
+		$terms = get_terms($args);
+
+		if (is_wp_error($terms) || empty($terms)) {
+			return $data;
+		}
+
+		foreach ($terms as $term) {
+			$label = $term->name;
+			$taxonomy_name = $this->getTaxonomyName($term->taxonomy);
+
+			if ($taxonomy_name) {
+				$label = "{$taxonomy_name}: {$label}";
+			}
+
+			$data[] = [
+				'id' => $term->term_taxonomy_id,
+				'text' => html_entity_decode(wp_strip_all_tags($label), ENT_QUOTES, get_bloginfo('charset')),
+			];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get Authors query Data
+	 *
+	 * @return array
+	 */
+	public function getAuthors()
+	{
+		$include = $this->getselecedIds();
+		$search_text = $this->getSearchQuery();
+
+		$args = [
+			'fields' => ['ID', 'display_name'],
+			'orderby' => 'display_name',
+		];
+
+		// Match the REST API: without list_users only people who have published
+		// something are listed, and the search never looks at e-mail addresses
+		// or URLs, so it can't be used to discover them.
+		$can_list_users = current_user_can('list_users');
+
+		if (!$can_list_users) {
+			$args['has_published_posts'] = true;
+		}
+
+		if (!empty($include)) {
+			$args['include'] = $include;
+		}
+
+		if ($search_text) {
+			$args['number'] = 20;
+			$args['search'] = "*$search_text*";
+
+			if (!$can_list_users) {
+				$args['search_columns'] = ['user_login', 'user_nicename', 'display_name'];
+			}
+		}
+
+		$users = get_users($args);
+
+		$data = [];
+
+		if (empty($users)) {
+			return $data;
+		}
+
+		foreach ($users as $user) {
+			$data[] = [
+				'id' => $user->ID,
+				'text' => html_entity_decode(wp_strip_all_tags($user->display_name), ENT_QUOTES, get_bloginfo('charset')),
+			];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get Authors Roles query Data
+	 *
+	 * @return array
+	 */
+	public function getAuthorRoles()
+	{
+		global $wp_roles;
+
+		$all_roles = $wp_roles->roles;
+		$roles = [];
+		foreach ($all_roles as $key => $role) {
+			$roles[] = [
+				'id' => $key,
+				'text' => translate_user_role($role['name']),
+			];
+		}
+
+		return $roles;
+	}
+
+}
+
+function Dynamic_Select_Input_Module()
+{
+	return Dynamic_Select_Input_Module::get_instance();
+}
+
+Dynamic_Select_Input_Module()->init();

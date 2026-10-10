@@ -1,0 +1,1 @@
+2026-09-11T21:22:58+00:00 WARNING Test email "customer_processing_order" for order #0 failed to send: Impossible d‘instancier la fonction mail. CONTEXT: {"email_type":"customer_processing_order","status":"failed","recipient":"guest","order":0,"is_test":true}

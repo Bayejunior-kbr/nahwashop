@@ -1,0 +1,182 @@
+<?php
+namespace PrimeSlider;
+
+if ( ! defined( 'ABSPATH' ) )  exit; // Exit if accessed directly
+
+class Utils {
+
+	/**
+	 * A list of safe tage for `get_valid_html_tag` method.
+	 */
+	const ALLOWED_HTML_WRAPPER_TAGS = [
+		'article',
+		'aside',
+		'div',
+		'footer',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'header',
+		'main',
+		'nav',
+		'p',
+		'section',
+		'span',
+	];
+
+	/**
+	 * Client IP address.
+	 *
+	 * REMOTE_ADDR is the only address the web server itself establishes. Every
+	 * HTTP_CLIENT_IP / HTTP_X_FORWARDED_* header is supplied by the caller and
+	 * can say anything, so checking that one parses as an IP does not make it
+	 * trustworthy. Sites behind a reverse proxy or CDN opt in to the forwarded
+	 * value through the 'prime_slider_trusted_proxies' filter.
+	 *
+	 * @return string
+	 */
+	public static function get_client_ip() {
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+			: '';
+
+		if ( ! filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
+			// Fallback local ip.
+			return '127.0.0.1';
+		}
+
+		/**
+		 * Proxy addresses that are allowed to set X-Forwarded-For.
+		 *
+		 * Empty by default, which means the forwarded headers are ignored.
+		 *
+		 * @param string[] $trusted_proxies Proxy IP addresses.
+		 */
+		$trusted_proxies = (array) apply_filters( 'prime_slider_trusted_proxies', [] );
+
+		if ( ! in_array( $remote_addr, $trusted_proxies, true ) ) {
+			return $remote_addr;
+		}
+
+		// The request really did come from a trusted proxy, so the client is the
+		// rightmost entry in X-Forwarded-For -- the one that proxy appended.
+		// Anything further left was supplied by the caller and may be forged.
+		$forwarded = isset( $_SERVER['HTTP_X_FORWARDED_FOR'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
+			: '';
+
+		if ( '' !== $forwarded ) {
+			$hops = array_map( 'trim', explode( ',', $forwarded ) );
+			$last = end( $hops );
+
+			if ( filter_var( $last, FILTER_VALIDATE_IP ) ) {
+				return $last;
+			}
+		}
+
+		return $remote_addr;
+	}
+
+	public static function get_site_domain() {
+		return str_ireplace( 'www.', '', wp_parse_url( home_url(), PHP_URL_HOST ) );
+	}
+
+	/**
+	 * Validate an HTML tag against a safe allowed list.
+	 * @param string $tag
+	 * @return string
+	 */
+	public static function get_valid_html_tag( $tag ) {
+		return in_array( strtolower( $tag ), self::ALLOWED_HTML_WRAPPER_TAGS ) ? $tag : 'div';
+	}
+	
+	/**
+	 * Get placeholder image source.
+	 * Retrieve the source of the placeholder image.
+	 * @since 5.7.6
+	 * @access public
+	 * @static
+	 * @return string The source of the default placeholder image used by Elementor.
+	 */
+	public static function get_placeholder_image_src() {
+		$placeholder_image = ELEMENTOR_ASSETS_URL . 'images/placeholder.png';
+		
+		return $placeholder_image;
+	}
+
+	public static function readable_num( $size ) {
+		$l    = substr( $size, -1 );
+		$ret  = substr( $size, 0, -1 );
+
+		switch ( strtoupper( $l ) ) {
+			case 'P':
+				$ret *= 1024;
+				break;
+			case 'T':
+				$ret *= 1024;
+				break;
+			case 'G':
+				$ret *= 1024;
+				break;
+			case 'M':
+				$ret *= 1024;
+				break;
+			case 'K':
+				$ret *= 1024;
+		}
+		return $ret;
+	}
+
+	/**
+	 * For get wp environment for element pack
+	 * @return [type] [description]
+	 */
+	public static function get_environment_info(){
+
+		// Figure out cURL version, if installed.
+		$curl_version = '';
+		if ( function_exists( 'curl_version' ) ) {
+			$curl_version = curl_version();
+			$curl_version = $curl_version['version'] . ', ' . $curl_version['ssl_version'];
+		}
+
+
+		// WP memory limit.
+		$wp_memory_limit = self::readable_num(WP_MEMORY_LIMIT);
+		if ( function_exists( 'memory_get_usage' ) ) {
+			$wp_memory_limit = max( $wp_memory_limit, self::readable_num( ini_get( 'memory_limit' ) ) );
+		}
+
+
+		return array(
+			'home_url'                  => get_option( 'home' ),
+			'site_url'                  => get_option( 'siteurl' ),
+			'version'                   => BDTPS_CORE_VER,
+			'wp_version'                => get_bloginfo( 'version' ),
+			'wp_multisite'              => is_multisite(),
+			'wp_memory_limit'           => $wp_memory_limit,
+			'wp_debug_mode'             => ( defined( 'WP_DEBUG' ) && WP_DEBUG ),
+			'wp_cron'                   => ! ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ),
+			'language'                  => get_locale(),
+			'external_object_cache'     => wp_using_ext_object_cache(),
+			'server_info'               => isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '',
+			'php_version'               => phpversion(),
+			'php_post_max_size'         => self::readable_num( ini_get( 'post_max_size' ) ),
+			'php_max_execution_time'    => ini_get( 'max_execution_time' ),
+			'php_max_input_vars'        => ini_get( 'max_input_vars' ),
+			'curl_version'              => $curl_version,
+			'suhosin_installed'         => extension_loaded( 'suhosin' ),
+			'max_upload_size'           => wp_max_upload_size(),
+			'default_timezone'          => date_default_timezone_get(),
+			'fsockopen_or_curl_enabled' => ( function_exists( 'fsockopen' ) || function_exists( 'curl_init' ) ),
+			'soapclient_enabled'        => class_exists( 'SoapClient' ),
+			'domdocument_enabled'       => class_exists( 'DOMDocument' ),
+			'gzip_enabled'              => is_callable( 'gzopen' ),
+			'mbstring_enabled'          => extension_loaded( 'mbstring' ),
+		);
+
+	}
+}

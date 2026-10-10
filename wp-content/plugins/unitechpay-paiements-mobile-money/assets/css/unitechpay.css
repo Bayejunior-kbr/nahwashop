@@ -1,0 +1,331 @@
+.payment_method_unitechpay_gateway .unitechpay-payment-options {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    margin: 15px 0 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-options h4 {
+    margin: 0 0 15px 0 !important;
+    color: #333 !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 15px !important;
+    margin: 0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option {
+    position: relative !important;
+    background: #fafafa !important;
+    border: 2px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    height: 90px !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option:hover {
+    border-color: #007cba !important;
+    background: #f0f8ff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.15) !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.wave:hover {
+    border-color: #ff6b35 !important;
+    background: #fff5f0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.orange:hover {
+    border-color: #ff6600 !important;
+    background: #fff9f0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option input[type="radio"] {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    z-index: 2 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option label {
+    display: block !important;
+    height: 100% !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    position: relative !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-option-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    padding: 10px !important;
+    text-align: center !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-option-content .unitechpay-logo {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain !important;
+    margin-bottom: 8px !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-option-title {
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #333 !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-option-desc {
+    font-size: 10px !important;
+    color: #666 !important;
+    line-height: 1.1 !important;
+    margin: 2px 0 0 0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option:has(input[type="radio"]:checked) {
+    border-color: #007cba !important;
+    background: #f0f8ff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.2) !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.wave:has(input[type="radio"]:checked) {
+    border-color: #ff6b35 !important;
+    background: #fff5f0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.orange:has(input[type="radio"]:checked) {
+    border-color: #ff6600 !important;
+    background: #fff9f0 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option:has(input[type="radio"]:checked) .unitechpay-option-title {
+    color: #007cba !important;
+    font-weight: 700 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.wave:has(input[type="radio"]:checked) .unitechpay-option-title {
+    color: #ff6b35 !important;
+}
+
+.payment_method_unitechpay_gateway .unitechpay-payment-option.orange:has(input[type="radio"]:checked) .unitechpay-option-title {
+    color: #ff6600 !important;
+}
+
+#payment .payment_methods li.payment_method_unitechpay_gateway .payment_box {
+    background: #f8f9fa !important;
+    border-radius: 6px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+#payment .payment_methods li.payment_method_unitechpay_gateway > label {
+    align-items: center !important;
+    font-weight: 600 !important;
+    color: #007cba !important;
+    margin: 0 !important;
+    padding: 10px 0 !important;
+}
+
+#payment .payment_methods li.payment_method_unitechpay_gateway input[type="radio"] {
+    margin-right: 10px !important;
+    margin-left: 0 !important;
+    vertical-align: middle !important;
+}
+
+#payment .payment_methods li.payment_method_unitechpay_gateway > label img {
+    margin-left: 10px !important;
+    max-height: 32px !important;
+    width: 32px !important;
+    vertical-align: middle !important;
+}
+
+.unitechpay-info {
+    background: #e7f3ff !important;
+    border: 1px solid #bee5eb !important;
+    border-radius: 6px !important;
+    padding: 15px !important;
+    margin: 15px 0 !important;
+    color: #0c5460 !important;
+    font-size: 14px !important;
+}
+
+.unitechpay-info strong {
+    color: #007cba !important;
+}
+
+
+body.unitechpay-payment-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.unitechpay-payment-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.unitechpay-payment-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.unitechpay-payment-header {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+    color: white;
+    padding: 30px 25px;
+    text-align: center;
+}
+
+.unitechpay-payment-header h1 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.unitechpay-order-info {
+    font-size: 16px;
+    opacity: 0.95;
+    margin: 0;
+}
+
+.unitechpay-payment-content {
+    padding: 30px 25px;
+    text-align: center;
+}
+
+.unitechpay-qr-section {
+    margin-bottom: 30px;
+}
+
+.unitechpay-qr-image {
+    width: 220px;
+    height: 220px;
+    border: 3px solid #007cba;
+    border-radius: 12px;
+    padding: 20px;
+    background: #ffffff;
+    margin: 0 auto 25px auto;
+    box-shadow: 0 8px 24px rgba(0, 124, 186, 0.15);
+}
+
+.unitechpay-instructions {
+    background: #f8f9fa;
+    border-left: 4px solid #007cba;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.unitechpay-instructions h3 {
+    color: #007cba;
+    margin-bottom: 15px;
+}
+
+.unitechpay-instructions ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.unitechpay-instructions li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.unitechpay-status-check {
+    text-align: center;
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+}
+
+.unitechpay-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007cba;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: unitechpay-spin 1s linear infinite;
+    margin: 0 auto 20px auto;
+}
+
+@keyframes unitechpay-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.unitechpay-success {
+    color: #28a745;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.unitechpay-success i {
+    font-size: 50px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+
+@media (max-width: 768px) {
+    .payment_method_unitechpay_gateway .unitechpay-payment-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+    
+    .payment_method_unitechpay_gateway .unitechpay-payment-option {
+        height: 80px !important;
+    }
+    
+    .payment_method_unitechpay_gateway .unitechpay-option-content .unitechpay-logo {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .payment_method_unitechpay_gateway .unitechpay-option-title {
+        font-size: 12px !important;
+    }
+    
+    .unitechpay-payment-page {
+        margin: 20px auto;
+        padding: 0 10px;
+    }
+    
+    .unitechpay-payment-content {
+        padding: 20px 15px;
+    }
+    
+    .unitechpay-qr-image {
+        width: 180px;
+        height: 180px;
+        padding: 15px;
+    }
+}
